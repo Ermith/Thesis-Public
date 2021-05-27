@@ -1,0 +1,15 @@
+heights_64-16=models/heights_64-16_9.h5
+heights_64-16-4=models/heights_64-16-4_9.h5
+heights_16-4-1=models/heights_16-4-1_9.h5
+roads_64-16=models/roads_64-16_9.h5
+roads_64-16-4=models/roads_64-16-4_9.h5
+roads_16-4-blurry=models/roads_16-4-blurry_9.h5
+roads_sharp=models/roads_blurry-sharp_9.h5
+rivers_64-16=models/rivers_64-16_4.h5
+rivers_64-16-4=models/rivers_64-16-4_4.h5
+rivers_16-4-blurry=models/rivers_16-4-blurry_4.h5
+rivers_sharp=models/rivers_blurry-sharp_4.h5
+buildings_64-16=models/buildings_64-16_4.h5
+buildings_64-16-4=models/buildings_64-16-4_4.h5
+buildings_16-4-blurry=models/buildings_16-4-blurry_2.h5
+buildings_sharp=models/buildings_blurry-sharp_2.h5

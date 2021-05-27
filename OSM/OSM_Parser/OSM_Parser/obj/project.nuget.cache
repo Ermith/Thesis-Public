@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "wnv+ImN3+AY8fcqXA+62u1/TyYteL7Y+oMOUhjiPVBWbqLJXGWItmJf0p+2EOFvJvkKVMEJ7p/A9+es9JIXXTw==",
+  "success": true,
+  "projectFilePath": "C:\\My Program Files\\New folder\\Thesis-Public\\OSM\\OSM_Parser\\OSM_Parser\\OSM_Parser.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\hyppe\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "C:\\Users\\hyppe\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+    "C:\\Users\\hyppe\\.nuget\\packages\\system.drawing.common\\5.0.2\\system.drawing.common.5.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

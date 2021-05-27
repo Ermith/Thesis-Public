@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            //"args": ["heights.txt", "training_data/heights"], // parse heights
+            //"args": ["model_structures/heights.txt", "training_data/heights", "models/heights"], // teach heights
+            //"args": ["--index=11550", "models/heights_0.h5", "training_data/heights"], // generate heights
+            //"args": ["roads.txt", "road_heights.txt", "training_data/roads"], // parse roads
+            "args": ["-e 1", "-t 200000","model_structures/roads.txt", "training_data/roads", "models/roads"], // teach roads
+            //"args": ["--index=10", "models/roads_0.h5", "roads_test"], // generate roads
+            "console": "integratedTerminal"
+        }
+    ]
+}

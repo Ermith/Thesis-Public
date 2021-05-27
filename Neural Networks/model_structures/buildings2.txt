@@ -1,0 +1,8 @@
+type=Input size=1592
+type=Dense size=32 activation=tanh
+type=Dropout value=0.3
+type=Dense size=16 activation=tanh
+type=Dense size=8 activation=tanh
+type=Dense size=8 activation=sigmoid
+COMPILE
+optimizer=ADAM loss=mean_squared_error

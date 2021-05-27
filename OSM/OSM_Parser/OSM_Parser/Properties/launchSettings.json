@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "OSM_Parser": {
+      "commandName": "Project",
+      "commandLineArgs": "sk.asc sk.osm",
+      "workingDirectory": "../.."
+    }
+  }
+}
