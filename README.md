@@ -31,7 +31,7 @@ python -m pip install tensorflow=2.2.0
 5. Navigate to https://www.openstreetmap.org/ and use the export feature to download the same coordinates as before. If your area is too large, open QGIS and use OSMDownloader instead.
 
 ## Preparing the data
-1. Open `OSM_Parser/OSM\_Parser.sln` in visual studio.
+1. Open `OSM_Parser/OSM_Parser.sln` in visual studio.
 2. Install the System.Drawing.Common library via NuGet packages function.
 3. Build the solution in release mode.
 4. Copy your osm and asc files into the release directory.
@@ -42,7 +42,7 @@ python -m pip install tensorflow=2.2.0
 This will result in 4 images: `heights.pgm`, `roads.pgm`, `rivers.pgm`, and `buildings.pgm`. If osm file is not specified, only heights file will be created.
 
 ## Training and running the generator
-Place the files in a folder of your choosing and navigate to **nn_generator** folder in the command line and execute jupyter notebook:
+Place the files in a folder of your choosing and navigate to `nn_generator` folder in the command line and execute jupyter notebook:
 ```
 cd nn_generator
 jupyter notebook
@@ -56,14 +56,14 @@ The details are specified in the Example file.
 
 ## Generator Description
 * `parse.py` parses the input image into layers. It is used to parse training images into Layers 64x, 16x, 4x and 1x. It also computes blurry layer and layers of altitude differences.
-* `normalize\_heights.py` uses standard score normalization on the height layers.
-* `process\_training\_data.py` takes the given layers and processes them into training data for a single network.
+* `normalize_heights.py` uses standard score normalization on the height layers.
+* `process_training_data.py` takes the given layers and processes them into training data for a single network.
 * `train.py` is parametrized with a name of a file that specifies network structure. It builds the network based on this file, trains it based on given parameters and saves it into given location.
 * `generate.py` is provided with configuration file "generation\_config.txt", which specifies which networks are used for the generation. This script is given a name of a folder containing user input and generates the maps into the specified output folder.
-* **libraries** folder contains libraries with helpful functions.
-* **model structures** folder contains files describing structures of each network.
-* **generation data** folder contains example files for the generation.
+* `libraries` folder contains libraries with helpful functions.
+* `model_structures` folder contains files describing structures of each network.
+* `generation_data` folder contains example files for the generation.
 * `Example.ipynb` is, as mentioned above, example python notebook file containing script on how to perform the algorithm from parsing to generation.
 
 It is important to note that these computations are very demanding and time consuming. Especially data used for training the network for generation of buildings. This network takes data from all the previous layers as an input.
-The software comes with prepared unparsed PGM images in **raw\_data** folder. It also comes with pre-trained networks in **models** folder. This is for demonstration purposes.
+The software comes with prepared unparsed PGM images in `raw_data` folder. It also comes with pre-trained networks in `models` folder. This is for demonstration purposes.
