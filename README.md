@@ -30,6 +30,10 @@ python -m pip install tensorflow=2.2.0
 4. Select ESRI ArcASCII format and hight resolution. Download the data and extract them.
 5. Navigate to https://www.openstreetmap.org/ and use the export feature to download the same coordinates as before. If your area is too large, open QGIS and use OSMDownloader instead.
 
+The selected area needs to be beg enough for sufficient amount of training examples. Area of Czech republic is recommended:
+* lower left corner: 13.500000000, 49.28252211106
+* upper right corner: 16.165283203, 50.3701685954
+
 ## Preparing the data
 1. Open `OSM_Parser/OSM_Parser.sln` in visual studio.
 2. Install the System.Drawing.Common library via NuGet packages function.
