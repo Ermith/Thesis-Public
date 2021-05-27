@@ -48,10 +48,10 @@ cd nn_generator
 jupyter notebook
 ```
 Browser window shold now open.  
-```
-*Click* "Example.ipynb"  
-*Click* "Run cell" on the cell you would like to run  
-```
+
+1. *Click* "Example.ipynb"  
+2. *Click* "Run cell" on the cell you would like to run  
+
 The details are specified in the Example file.
 
 ## Generator Description
