@@ -1,0 +1,7 @@
+type=Input size=600
+type=Dropout value=0.3
+type=Dense size=32 activation=tanh
+type=Dense size=16 activation=tanh
+type=Dense size=8 activation=tanh
+COMPILE
+optimizer=Adam loss=mean_squared_error
