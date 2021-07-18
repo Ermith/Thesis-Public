@@ -1,6 +1,10 @@
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("agg")
 import numpy as np
+from numpy.core.shape_base import block
+import cv2
 
 def register_colormap(cmap):
     """Creates and registers alpha-fading colormap.
@@ -45,7 +49,7 @@ def save_as_pgm(matrix, file_name):
 
 def save_image(img, name):
     plt.gca().set_axis_off()
-    plt.imshow(img)
+    plt.imshow(img, cmap='viridis')
     plt.savefig(name, bbox_inches='tight', pad_inches=0)
 
 def show_image(img):

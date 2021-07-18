@@ -21,6 +21,7 @@ def load_data(model_file, data_folder, result_folder, data_name):
     check_path(image_name)
     model = load_model(model_file)
     image = cv2.imread(image_name, cv2.IMREAD_GRAYSCALE)
+    #show_image(image)
     image = rescale(image)
 
     save_image(image, f"{result_folder}/{data_name}.png")
@@ -64,7 +65,9 @@ def generate_map(
         for r in range(padding, rows + padding):
             for c in range(padding, cols + padding):
                 context = get_context(r, c)
-                recurrent = get_window(generated, r, c, 1, cut).flatten()[:-3]
+                recurrent = get_window(generated, r, c, 1, cut)
+                #show_image(recurrent)
+                recurrent = recurrent.flatten()[:-3]
                 absolute = relativization(recurrent)
                 absolute_encoded = unary_linear_encoding(absolute, encoding)
                 recurrent = unary_log_encoding_array_reversed(recurrent, encoding)
@@ -73,7 +76,8 @@ def generate_map(
                 output = np.asarray(model(_input))
                 output_decoded = unary_log_decoding_reversed(np.asarray(output).flatten())
                 o = float(output_decoded) + absolute
-                generated[r, c] = o 
+                generated[r, c] = o
+                #save_image(cutout(generated, padding - 5, padding - 5, 17, 17), f"generation2/{r, c}.png")
 
         return generated
 
@@ -106,34 +110,40 @@ def generate_map(
     rows = int(np.ceil(heights.shape[0] / 16))
     cols = int(np.ceil(heights.shape[1] / 16))
 
-    #heights = noisify_exp(heights, random_modifier)
     heights = rescale(heights)
-    #heights = 1 - heights
-    heights = np.pad(heights, padding, 'edge')
-
+    #heights = heights / 10 + 0.25
 
     def height_context_16x(row, col):
         r = (row - padding) * 16 + padding
         c = (col - padding) * 16 + padding
         window = get_window(heights, r, c, 64, cut)
         #show_image(window)
+        #save_image(window, f"contexts/{r}_{c}.png")
+        height_context_16x.counter += 1
+        
         absolute = relativization(window.flatten())
         absolute = unary_linear_encoding(absolute, encoding)
         window = unary_log_encoding_array_reversed(window.flatten(), encoding)
 
         return np.concatenate(( window, absolute ))
 
+    height_context_16x.counter = 0
+
+    
     initial = cv2.resize(heights, (rows, cols))
-    show_image(initial)
+    heights = np.pad(heights, padding, 'edge')
     initial = np.pad(initial, padding, 'edge')
+    #show_image(heights)
+    #show_image(initial)
     generated_heights_16x = generate(heights_model, padding, height_context_16x, rows, cols, initial)
+    #show_image(initial)
     generated_heights_16x = cutout(generated_heights_16x, padding, padding, rows, cols)
     height_diff_rows_16x, height_diff_cols_16x = derivatives(generated_heights_16x)
     height_diff_rows_16x = np.pad(height_diff_rows_16x, padding, 'reflect')
     height_diff_cols_16x = np.pad(height_diff_cols_16x, padding, 'reflect')
 
 
-    show_image(generated_heights_16x)
+    #show_image(generated_heights_16x)
     #sys.exit()
 
     save_image(
@@ -283,7 +293,10 @@ def generate_map(
     generated_rivers_16x = np.pad(generated_rivers_16x, padding, 'reflect')
     generated_buildings_16x = np.pad(generated_buildings_16x, padding, 'reflect')
     
-    generated_heights_16x = noisify_exp(generated_heights_16x, random_modifier)
+    if random_modifier != 0:
+        generated_heights_16x = noisify_exp(generated_heights_16x, random_modifier)
+
+    #show_image(generated_heights_16x)
 
     # HEIGHTS
 
@@ -301,6 +314,7 @@ def generate_map(
         return np.concatenate(( heights2, absolute2, heights1, absolute1 ))
 
     generated_heights_4x = generate(heights_model, padding, height_context_4x, rows, cols, deepcopy(generated_heights_16x))
+    #show_image(generated_heights_4x)
     generated_heights_4x = cutout(generated_heights_4x, padding, padding, rows, cols)
     height_diff_rows_4x, height_diff_cols_4x = derivatives(generated_heights_16x)
     height_diff_rows_4x = np.pad(height_diff_rows_4x, padding, 'reflect')
@@ -468,7 +482,8 @@ def generate_map(
     generated_rivers_4x = np.pad(generated_rivers_4x, padding, 'reflect')
     generated_buildings_4x = np.pad(generated_buildings_4x, padding, 'reflect')
     
-    generated_heights_4x = noisify_exp(generated_heights_4x, random_modifier)
+    if random_modifier != 0:
+        generated_heights_4x = noisify_exp(generated_heights_4x, random_modifier)
 
     # HEIGHTS
 
@@ -486,16 +501,17 @@ def generate_map(
         absolute1 = unary_linear_encoding(absolute1, encoding)
         return np.concatenate(( heights2, absolute2, heights1, absolute1 ))
 
+    #generated_heights_4x = rescale(generated_heights_4x)
     generated_heights_1x = generate(heights_model, padding, height_context_1x, rows, cols, deepcopy(generated_heights_4x))
     generated_heights_1x = cutout(generated_heights_1x, padding, padding, rows, cols)
-    height_diff_rows_1x, height_diff_cols_1x = derivatives(generated_heights_1x)
-    height_diff_rows_1x = np.pad(height_diff_rows_1x, padding, 'reflect')
-    height_diff_cols_1x = np.pad(height_diff_cols_1x, padding, 'reflect')
+#    height_diff_rows_1x, height_diff_cols_1x = derivatives(generated_heights_1x)
+#    height_diff_rows_1x = np.pad(height_diff_rows_1x, padding, 'reflect')
+#    height_diff_cols_1x = np.pad(height_diff_cols_1x, padding, 'reflect')
 
     save_image(
         generated_heights_1x,
         f"{results_folder}/generated_heights_1x.png")
-
+    return
     road_model = load_model(models["roads_16-4-blurry"])
 
     def road_context_1x(r, c):

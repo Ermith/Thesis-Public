@@ -1,4 +1,5 @@
 from .matrix_manipulation import cutout, scale_down
+from .images import save_image
 import numpy as np
 
 
@@ -10,7 +11,7 @@ def get_window(image, row, col, reduction, cut):
     row - 2 - window_size // 2,
     col - window_size // 2,
     window_size, window_size)
-
+    #save_image(window, f"contexts_raw/{row}_{col}.png")
     window = scale_down(window, reduction)
 
     return window
