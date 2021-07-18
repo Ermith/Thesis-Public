@@ -140,8 +140,8 @@ def learn(
     dataset_sizes = {"heights" : 150000, "roads" : 150000, "rivers" : 150000, "buildings" : 150000},
     epochs = {
         "heights" : (10,10,10),
-        "roads" : (6, 6, 6, 6)
-        "rivers" : (6, 6, 6, 6)
+        "roads" : (6, 6, 6, 6),
+        "rivers" : (6, 6, 6, 6),
         "buildings" : (1, 1, 1, 1)
     },
     network_structures = "nn_generator/examples/model_structures",
