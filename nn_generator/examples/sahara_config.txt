@@ -1,0 +1,15 @@
+heights_64-16=models_sahara/heights_64-16.h5
+heights_64-16-4=models_sahara/heights_64-16-4.h5
+heights_16-4-1=models_sahara/heights_16-4-1.h5
+roads_64-16=models/roads_64-16.h5
+roads_64-16-4=models/roads_64-16-4.h5
+roads_16-4-blurry=models/roads_16-4-blurry.h5
+roads_sharp=models/roads_blurry-sharp.h5
+rivers_64-16=models/rivers_64-16.h5
+rivers_64-16-4=models/rivers_64-16-4.h5
+rivers_16-4-blurry=models/rivers_16-4-blurry.h5
+rivers_sharp=models/rivers_blurry-sharp.h5
+buildings_64-16=models/buildings_64-16.h5
+buildings_64-16-4=models/buildings_64-16-4.h5
+buildings_16-4-blurry=models/buildings_16-4-blurry.h5
+buildings_sharp=models/buildings_blurry-sharp.h5
