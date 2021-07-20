@@ -7,12 +7,16 @@ from numpy.core.shape_base import block
 import cv2
 
 def register_colormap(cmap):
-    """Creates and registers alpha-fading colormap.
+    """Creates and registers alpha-fading version of a colormap.
     """
+    name=f'{cmap}_alpha'
+    if name in plt.colormaps():
+        return
+
     ncolors = 256
     color_array = plt.get_cmap(cmap)(range(ncolors))
     color_array[:,-1] = np.linspace(0.0,1.0,ncolors)
-    map_object = LinearSegmentedColormap.from_list(name=f'{cmap}_alpha',colors=color_array)
+    map_object = LinearSegmentedColormap.from_list(name=name,colors=color_array)
 
     plt.register_cmap(cmap=map_object)
 

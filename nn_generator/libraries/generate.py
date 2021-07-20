@@ -16,12 +16,13 @@ def check_path(path):
         sys.exit()
 
 def load_data(model_file, data_folder, result_folder, data_name):
+    """Loads the model and user input for the generation and saves the input as an image.
+    """
     image_name = f"{data_folder}/{data_name}.pgm"
     check_path(model_file)
     check_path(image_name)
     model = load_model(model_file)
     image = cv2.imread(image_name, cv2.IMREAD_GRAYSCALE)
-    #show_image(image)
     image = rescale(image)
 
     save_image(image, f"{result_folder}/{data_name}.png")
@@ -48,6 +49,7 @@ def generate_map(
     # Universal padding
     padding = 64 * 5 // 2 + 2
     
+    # Parse config file = locations of the networks
     models = {}
     with open(config_file) as f:
         for line in f:
@@ -61,12 +63,14 @@ def generate_map(
 
 
     def generate(model, padding, get_context, rows, cols, generated):
-
+        """Generation of altitudes.
+        This function takes mainly model, initialized generation matrix and function get_context.
+        get_context() has to return context at each position needed for the model to continue generation.
+        """
         for r in range(padding, rows + padding):
             for c in range(padding, cols + padding):
                 context = get_context(r, c)
                 recurrent = get_window(generated, r, c, 1, cut)
-                #show_image(recurrent)
                 recurrent = recurrent.flatten()[:-3]
                 absolute = relativization(recurrent)
                 absolute_encoded = unary_linear_encoding(absolute, encoding)
@@ -77,11 +81,12 @@ def generate_map(
                 output_decoded = unary_log_decoding_reversed(np.asarray(output).flatten())
                 o = float(output_decoded) + absolute
                 generated[r, c] = o
-                #save_image(cutout(generated, padding - 5, padding - 5, 17, 17), f"generation2/{r, c}.png")
 
         return generated
 
     def generate_other(model, get_context, rows, cols, generated, encode, _round):
+        """Same as function generate(), but added different encoding for roads, rivers and buildings.
+        """
         for r in range(padding, rows + padding):
             for c in range(padding, cols + padding):
                 context = get_context(r, c)
@@ -100,25 +105,23 @@ def generate_map(
         return generated
 
 
-
+    #=================================================================
     # 64 -> 16
-    #======================================
+    #==================================================================
 
-    # HEIGHTS
+    # GENERATION OF HEIGHTS
+    #==========================
 
     heights_model, heights = load_data(models["heights_64-16"], generation_data, results_folder, "heights")
     rows = int(np.ceil(heights.shape[0] / 16))
     cols = int(np.ceil(heights.shape[1] / 16))
 
     heights = rescale(heights)
-    #heights = heights / 10 + 0.25
 
     def height_context_16x(row, col):
         r = (row - padding) * 16 + padding
         c = (col - padding) * 16 + padding
         window = get_window(heights, r, c, 64, cut)
-        #show_image(window)
-        #save_image(window, f"contexts/{r}_{c}.png")
         height_context_16x.counter += 1
         
         absolute = relativization(window.flatten())
@@ -133,24 +136,22 @@ def generate_map(
     initial = cv2.resize(heights, (rows, cols))
     heights = np.pad(heights, padding, 'edge')
     initial = np.pad(initial, padding, 'edge')
-    #show_image(heights)
-    #show_image(initial)
+
     generated_heights_16x = generate(heights_model, padding, height_context_16x, rows, cols, initial)
-    #show_image(initial)
     generated_heights_16x = cutout(generated_heights_16x, padding, padding, rows, cols)
+
+    # Computation of differences for roads, rivers and buildings
     height_diff_rows_16x, height_diff_cols_16x = derivatives(generated_heights_16x)
     height_diff_rows_16x = np.pad(height_diff_rows_16x, padding, 'reflect')
     height_diff_cols_16x = np.pad(height_diff_cols_16x, padding, 'reflect')
-
-
-    #show_image(generated_heights_16x)
-    #sys.exit()
 
     save_image(
         generated_heights_16x,
         f"{results_folder}/generated_heights_16x.png")
 
-    # ROADS
+
+    # GENERATION OF ROADS
+    #==========================
 
     road_model, roads = load_data(models["roads_64-16"], generation_data, results_folder, "roads")
 
@@ -176,12 +177,16 @@ def generate_map(
     initial = cv2.resize(roads, (rows, cols))
     initial = np.pad(initial, padding, 'reflect')
     roads = np.pad(roads, padding, 'reflect')
+
     generated_roads_16x = generate_other(road_model, road_context, rows, cols, initial, True, False)
     save_image(
         cutout(generated_roads_16x, padding, padding, rows, cols),
         f"{results_folder}/generated_roads_16x.png")
 
-    # RIVERS
+
+    # GENERATION OF RIVERS
+    #==========================
+
     river_model, rivers = load_data(models["rivers_64-16"], generation_data, results_folder, "rivers")
 
     def river_context(r, c):
@@ -215,7 +220,9 @@ def generate_map(
 
 
 
-    # BUILDINGS
+    # GENERATION OF BUILDINGS
+    #==========================
+
     building_model, buildings = load_data(models["buildings_64-16"], generation_data, results_folder, "buildings")
     generated_heights_16x = np.pad(generated_heights_16x, padding, 'reflect')
 
@@ -266,8 +273,11 @@ def generate_map(
         cutout(generated_buildings_16x, padding, padding, rows, cols),
         f"{results_folder}/generated_buildings_16x.png")
 
+    #======================================
     # (64, 16) -> 4
     #======================================
+
+    # Preparing previous layers to be used as context for the following layers
 
     generated_heights_16x = cutout(generated_heights_16x, padding, padding, rows, cols)
     height_diff_rows_16x = cutout(height_diff_rows_16x, padding, padding, rows, cols)
@@ -296,9 +306,8 @@ def generate_map(
     if random_modifier != 0:
         generated_heights_16x = noisify_exp(generated_heights_16x, random_modifier)
 
-    #show_image(generated_heights_16x)
-
-    # HEIGHTS
+    # GENERATION OF HEIGHTS
+    #==========================
 
     heights_model = load_model(models["heights_64-16-4"])
 
@@ -314,7 +323,6 @@ def generate_map(
         return np.concatenate(( heights2, absolute2, heights1, absolute1 ))
 
     generated_heights_4x = generate(heights_model, padding, height_context_4x, rows, cols, deepcopy(generated_heights_16x))
-    #show_image(generated_heights_4x)
     generated_heights_4x = cutout(generated_heights_4x, padding, padding, rows, cols)
     height_diff_rows_4x, height_diff_cols_4x = derivatives(generated_heights_16x)
     height_diff_rows_4x = np.pad(height_diff_rows_4x, padding, 'reflect')
@@ -325,7 +333,8 @@ def generate_map(
         f"{results_folder}/generated_heights_4x.png")
 
 
-    # Roads
+    # GENERATION OF ROADS
+    #==========================
 
     road_model = load_model(models["roads_64-16-4"])
 
@@ -360,7 +369,8 @@ def generate_map(
         f"{results_folder}/generated_roads_4x.png")
 
 
-    # RIVERS
+    # GENERATION OF RIVERS
+    #==========================
 
     river_model = load_model(models["rivers_64-16-4"])
 
@@ -395,7 +405,8 @@ def generate_map(
         f"{results_folder}/generated_rivers_4x.png")
 
 
-    # BUILDINGS
+    # GENERATION OF BUILDINGS
+    #==========================
 
     building_model = load_model(models["buildings_64-16-4"])
     generated_heights_4x = np.pad(generated_heights_4x, padding, 'reflect')
@@ -456,8 +467,13 @@ def generate_map(
         f"{results_folder}/generated_buildings_4x.png")
 
 
+    #======================================
     # (16, 4) -> 1
     #======================================
+
+
+    # Preparing previous layers to be used as context for the following layers
+
     generated_heights_4x = cutout(generated_heights_4x, padding, padding, rows, cols)
     height_diff_rows_4x = cutout(height_diff_rows_4x, padding, padding, rows, cols)
     height_diff_cols_4x = cutout(height_diff_cols_4x, padding, padding, rows, cols)
@@ -485,7 +501,8 @@ def generate_map(
     if random_modifier != 0:
         generated_heights_4x = noisify_exp(generated_heights_4x, random_modifier)
 
-    # HEIGHTS
+    # GENERATION OF HEIGHTS
+    #==========================
 
     heights_model = load_model(models["heights_16-4-1"])
 
@@ -501,17 +518,20 @@ def generate_map(
         absolute1 = unary_linear_encoding(absolute1, encoding)
         return np.concatenate(( heights2, absolute2, heights1, absolute1 ))
 
-    #generated_heights_4x = rescale(generated_heights_4x)
     generated_heights_1x = generate(heights_model, padding, height_context_1x, rows, cols, deepcopy(generated_heights_4x))
     generated_heights_1x = cutout(generated_heights_1x, padding, padding, rows, cols)
-#    height_diff_rows_1x, height_diff_cols_1x = derivatives(generated_heights_1x)
-#    height_diff_rows_1x = np.pad(height_diff_rows_1x, padding, 'reflect')
-#    height_diff_cols_1x = np.pad(height_diff_cols_1x, padding, 'reflect')
+    height_diff_rows_1x, height_diff_cols_1x = derivatives(generated_heights_1x)
+    height_diff_rows_1x = np.pad(height_diff_rows_1x, padding, 'reflect')
+    height_diff_cols_1x = np.pad(height_diff_cols_1x, padding, 'reflect')
 
     save_image(
         generated_heights_1x,
         f"{results_folder}/generated_heights_1x.png")
-    return
+
+
+    # GENERATION OF ROADS
+    #==========================
+
     road_model = load_model(models["roads_16-4-blurry"])
 
     def road_context_1x(r, c):
@@ -559,7 +579,8 @@ def generate_map(
         f"{results_folder}/generated_roads_1x.png")
 
 
-    # RIVERS
+    # GENERATION OF RIVERS
+    #==========================
 
     river_model = load_model(models["rivers_16-4-blurry"])
 
@@ -608,7 +629,8 @@ def generate_map(
         f"{results_folder}/generated_rivers_1x.png")
 
 
-    # BUILDING
+    # GENERATION OF BUILDINGS
+    #==========================
 
     building_model = load_model(models["buildings_16-4-blurry"])
     generated_heights_1x = np.pad(generated_heights_1x, padding, 'reflect')
@@ -687,12 +709,29 @@ def generate_map(
         cutout(generated_buildings_1x, padding, padding, rows, cols),
         f"{results_folder}/generated_buildings_1x.png")
 
+
+    #====================================
+    # THE FINAL PICTURE AND RETURN VALUE
+    #====================================
+
+    final_heights = cutout(generated_heights_1x, padding, padding, rows, cols)
+    final_rivers = cutout(generated_rivers_1x, padding, padding, rows, cols)
+    final_roads = cutout(generated_roads_1x, padding, padding, rows, cols)
+    final_buildings = cutout(generated_buildings_1x, padding, padding, rows, cols)
+
     save_all([
-        cutout(generated_heights_1x, padding, padding, rows, cols),
-        cutout(generated_rivers_1x, padding, padding, rows, cols),
-        cutout(generated_roads_1x, padding, padding, rows, cols),
-        cutout(generated_buildings_1x, padding, padding, rows, cols)
+            final_heights,
+            final_rivers,
+            final_roads
+            #final_buildings
         ],
         colors,
         f"{results_folder}/generated_all.png"
     )
+
+    return {
+        "heights": final_heights,
+        "roads": final_roads,
+        "rivers": final_rivers,
+        "buildings": final_buildings
+    }

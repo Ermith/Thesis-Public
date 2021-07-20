@@ -1,6 +1,7 @@
 from .basic.matrix_manipulation import rescale, rescale2
 from .basic.utilities import unary_log_encoding_array, noisify_exp, relativization, unary_linear_encoding, unary_log_encoding_array_reversed
 import os
+import sys
 import numpy as np
 
 def process_training_data(
@@ -47,12 +48,19 @@ def process_training_data(
 
     def mode_blurred_file(mode, reduction):
         return f"{training_folder}/{mode}_layers/layer_blurry_{reduction}x.npy"
+    
+    def check_count(count, size):
+        if (count < size):
+            print("ERROR: Not enough training data.")
+            print(f"{count} viable data, but {size} training size.")
+            sys.exit()
 
     make_dir_checked(output_folder_name)
 
     if mode == "heights":
         layer0 = np.load(heights_file(reduction0))
         count = layer0.shape[0]
+        check_count(count, size)
         randomizer = np.random.choice(count, size=size, replace=False)
         func = lambda t : unary_log_encoding_array_reversed(t, encoding)
         noisify = lambda t : noisify_exp(t, 20)
@@ -110,6 +118,7 @@ def process_training_data(
         paths1 = np.load(mode_file(mode, reduction1))
         # Thin out empty entries
         nonzero_indices = np.argwhere(np.any(paths1 != 0, axis=1)).flatten()
+        check_count(len(nonzero_indices), size)
         randomizer = np.random.choice(nonzero_indices, size=size, replace=False)
 
         paths1 = paths1[randomizer]
@@ -203,6 +212,7 @@ def process_training_data(
         buildings1 = np.load(mode_file("buildings", reduction1))
         # Thin out empty entries
         nonzero_indices = np.argwhere(np.any(buildings1 != 0, axis=1)).flatten()
+        check_count(len(nonzero_indices), count)
         randomizer = np.random.choice(nonzero_indices, size=size, replace=False)
 
         buildings1 = buildings1[randomizer]

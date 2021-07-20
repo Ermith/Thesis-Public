@@ -1,5 +1,6 @@
 """This file contains main functions for learning and generation using pixel RNNs."""
 
+from cv2 import data
 from .libraries.parse import parse_image
 from .libraries.process_training_data import process_training_data
 from .libraries.normalize_heights import normalize_heights
@@ -54,7 +55,7 @@ def construct_training_datasets(
     size : int
         Number of training examples in constructed datasets.
     folder : str
-        Folder containing parsed images.
+        Folder containing parsed images. Results will be also saved into this folder.
     """
     print(f"Constructing {mode} datasets . . .")
 
@@ -76,16 +77,17 @@ def train_networks(
     reduction2 = 16,
     reduction3 = 64,
     size = 150000,
-    epochs = (1, 1, 1, 1)
+    epochs = (1, 1, 1, 1),
+    data_folder = "training_data"
     ):
     """Trains networks based on given parameters.
     mode: str
         What are we parsing? "heights", "roads", "rivers" or "buildings" ?
     structures_folder: str
-        Folder containing text files sepcifying structures of the networks to be trained.
+        Folder containing text files specifying structures of the networks to be trained.
     output_folder: str
         Where to save the networks.
-        Path is created if the does not exist.
+        Path is created if it does not exist.
     reduction[0-3]: int
         Layers used.
     size: int
@@ -95,8 +97,19 @@ def train_networks(
         Number of epochs for each network.
         For heights, only 3 is needed.
         For the rest 4 is needed, due to the blurry and sharp layer.
+    data_folder: str
+        Folder containing training data.
     """
     print(f"Training {mode} . . .")
+    if mode != "heights" and len(epochs) < 4:
+        print(f"At least 4 numbers needed in 'epochs' argument for {mode}.")
+        print(f"See help(nn_generator.train_networks)")
+        return
+
+    if mode == "heights" and len(epochs) < 3:
+        print(f"At least 3 numbers needed in 'epochs' argument for {mode}.")
+        print(f"See help(nn_generator.train_networks)")
+        return
 
     def structure(num):
         return f"{structures_folder}/{mode}{num}.txt"
@@ -111,8 +124,8 @@ def train_networks(
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    data2 = f"training_data/{mode}_{reduction3}-{reduction2}_{size}"
-    data1 = f"training_data/{mode}_{reduction3}-{reduction2}-{reduction1}_{size}"
+    data2 = f"{data_folder}/{mode}_{reduction3}-{reduction2}_{size}"
+    data1 = f"{data_folder}/{mode}_{reduction3}-{reduction2}-{reduction1}_{size}"
 
     if not check_data(data2) or not check_data(data1):
         return
@@ -121,12 +134,12 @@ def train_networks(
     train(structure(1), data1, f"{output_folder}/{mode}_{reduction3}-{reduction2}-{reduction1}", epochs=epochs[1])
 
     if (mode == "heights"):
-        data0 = f"training_data/heights_{reduction2}-{reduction1}-{reduction0}_{size}"
+        data0 = f"{data_folder}/heights_{reduction2}-{reduction1}-{reduction0}_{size}"
         if not check_data(data0): return
         train(structure(0), data0, f"{output_folder}/heights_{reduction2}-{reduction1}-{reduction0}", epochs=epochs[2])
     else:
-        data_blurry = f"training_data/{mode}_{reduction2}-{reduction1}-{reduction0}_{size}/blurry"
-        data_focus = f"training_data/{mode}_{reduction2}-{reduction1}-{reduction0}_{size}/sharp"
+        data_blurry = f"{data_folder}/{mode}_{reduction2}-{reduction1}-{reduction0}_{size}/blurry"
+        data_focus = f"{data_folder}/{mode}_{reduction2}-{reduction1}-{reduction0}_{size}/sharp"
 
         if not check_data(data_blurry) or not check_data(data_focus):
             return
@@ -142,7 +155,7 @@ def learn(
         "heights" : (10,10,10),
         "roads" : (6, 6, 6, 6),
         "rivers" : (6, 6, 6, 6),
-        "buildings" : (1, 1, 1, 1)
+        "buildings" : (6, 6, 6, 6)
     },
     network_structures = "nn_generator/examples/model_structures",
     network_folder = "models"
@@ -226,7 +239,7 @@ def generate(
     generation_data,
     output_folder,
     config_file = "nn_generator/examples/generation_config.txt",
-    random_modifier = 10
+    random_modifier = 5
     ):
     """Uses neural networks to generate images.
     generation_data: str
@@ -236,6 +249,8 @@ def generate(
         Creates path if it does not exist.
     config_file: str
         Name of a text file containing locations of neural networks used for the generation.
+    random_modifier: float
+        SMALLER the number, BIGGER the randomness applied to the process. '0' turns the randomness off.
     """
     print("Configuration file:\n")
     print("======================\n")
@@ -244,4 +259,4 @@ def generate(
         for line in f:
             print(line)
 
-    generate_map(generation_data, output_folder, config_file, random_modifier)
+    return generate_map(generation_data, output_folder, config_file, random_modifier)
