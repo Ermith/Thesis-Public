@@ -212,7 +212,7 @@ def process_training_data(
         buildings1 = np.load(mode_file("buildings", reduction1))
         # Thin out empty entries
         nonzero_indices = np.argwhere(np.any(buildings1 != 0, axis=1)).flatten()
-        check_count(len(nonzero_indices), count)
+        check_count(len(nonzero_indices), size)
         randomizer = np.random.choice(nonzero_indices, size=size, replace=False)
 
         buildings1 = buildings1[randomizer]

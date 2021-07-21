@@ -722,8 +722,8 @@ def generate_map(
     save_all([
             final_heights,
             final_rivers,
-            final_roads
-            #final_buildings
+            final_roads,
+            final_buildings
         ],
         colors,
         f"{results_folder}/generated_all.png"
