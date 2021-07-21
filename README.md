@@ -46,15 +46,18 @@ The selected area needs to be beg enough for sufficient amount of training examp
 This will result in 4 images: `heights.pgm`, `roads.pgm`, `rivers.pgm`, and `buildings.pgm`. If osm file is not specified, only heights file will be created.
 
 ## Training and running the generator
-Place the files in a folder of your choosing and navigate to `nn_generator` folder in the command line and execute jupyter notebook:
+1. Place the files in a folder of your choosing and navigate to `Thesis-public`
+folder (or any folder containing `nn_generator`) in the command line.
+2. Execute jupyter notebook
+
 ```
-cd nn_generator
+cd Thesis-public
 jupyter notebook
 ```
 Browser window shold now open.  
 
-1. *Click* `Example.ipynb`  
-2. *Click* "Run cell" on the cell you would like to run  
+3. *Click* `Example.ipynb`  
+4. *Click* "Run cell" on the cell you would like to run  
 
 The details are specified in the Example file.
 
