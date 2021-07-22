@@ -1,0 +1,15 @@
+heights_64-16=nn_generator/examples/models/heights_64-16.h5
+heights_64-16-4=nn_generator/examples/models/heights_64-16-4.h5
+heights_16-4-1=nn_generator/examples/models/heights_16-4-1.h5
+roads_64-16=nn_generator/examples/models/roads_64-16.h5
+roads_64-16-4=nn_generator/examples/models/roads_64-16-4.h5
+roads_16-4-blurry=nn_generator/examples/models/roads_16-4-blurry.h5
+roads_sharp=nn_generator/examples/models/roads_blurry-sharp.h5
+rivers_64-16=nn_generator/examples/models/rivers_64-16.h5
+rivers_64-16-4=nn_generator/examples/models/rivers_64-16-4.h5
+rivers_16-4-blurry=nn_generator/examples/models/rivers_16-4-blurry.h5
+rivers_sharp=nn_generator/examples/models/rivers_blurry-sharp.h5
+buildings_64-16=nn_generator/examples/models/buildings_64-16.h5
+buildings_64-16-4=nn_generator/examples/models/buildings_64-16-4.h5
+buildings_16-4-blurry=nn_generator/examples/models/buildings_16-4-blurry.h5
+buildings_sharp=nn_generator/examples/models/buildings_blurry-sharp.h5
