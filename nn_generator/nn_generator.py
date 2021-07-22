@@ -19,11 +19,11 @@ def parse(
     mode: str
         What are we parsing? "heights", "roads", "rivers" or "buildings" ?
     image: str
-        Image to be parsed.
+        Path to the PGM image to be parsed.
     reductions: [int]
         Specifies the layers.
     output_folder: str
-        Creates layer subfolders. Path is created if doesn't exist.
+        Creates saves output layers into this folder. Path is created if it doesn't exist.
     """
 
     print(f"Parsing {mode} . . .")
@@ -160,8 +160,8 @@ def learn(
     network_structures = "nn_generator/examples/model_structures",
     network_folder = "models"
     ):
-    """Parse the images, construct datasets and create and train neural networks for heights, roads, rivers and buildings.
-    After executingthis function, the networks are ready to generate images.
+    """Parses the images, constructs datasets and creates and trains neural networks for heights, roads, rivers and buildings.
+    After executing this function, the networks are ready to generate images.
 
     training_data: str
         Name of the file containing training input.
@@ -169,7 +169,7 @@ def learn(
     training_folder: str
         Folder to store all parsed data and constructed training datasets.
     dataset_sizes: dict[str, int]
-        Number of training examples used to train each network.
+        Number of training examples used to train networks in each mode.
         See the default value.
     epochs: dict[str, (int, int, int, int)]
         Number of epochs for each mode, for each network.
@@ -251,6 +251,14 @@ def generate(
         Name of a text file containing locations of neural networks used for the generation.
     random_modifier: float
         SMALLER the number, BIGGER the randomness applied to the process. '0' turns the randomness off.
+
+    returns dictionary of created images:
+    {
+        'heights': height_image,
+        'roads': road_image,
+        'rivers': river_image,
+        'buildings': building_image,
+    }
     """
     print("Configuration file:\n")
     print("======================\n")
